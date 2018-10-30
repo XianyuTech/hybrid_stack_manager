@@ -1,14 +1,19 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'router_option.dart';
 import 'hybrid_stack_manager.dart';
 import 'utils.dart';
+import 'dart:io';
+import 'package:image/image.dart' as image;
+import 'dart:math';
 
 typedef Widget FlutterWidgetHandler({RouterOption routeOption, Key key});
 
 class XMaterialPageRoute<T> extends MaterialPageRoute<T> {
   final WidgetBuilder builder;
   final bool animated;
+  final GlobalKey boundaryKey;
   Duration get transitionDuration {
     if (animated == true) return const Duration(milliseconds: 300);
     return const Duration(milliseconds: 0);
@@ -17,6 +22,7 @@ class XMaterialPageRoute<T> extends MaterialPageRoute<T> {
   XMaterialPageRoute({
     this.builder,
     this.animated,
+    this.boundaryKey,
     RouteSettings settings: const RouteSettings(),
   }) : super(builder: builder, settings: settings);
 }
@@ -31,9 +37,13 @@ class Router extends Object {
     return singleton;
   }
 
-  Router._internal() {
+  Router._internal(){
+    setupMethodChannel();
+  }
+
+  void setupMethodChannel(){
     HybridStackManagerPlugin.hybridStackManagerPlugin
-        .setMethodCallHandler((MethodCall methodCall) {
+        .setMethodCallHandler((MethodCall methodCall)async{
       String method = methodCall.method;
       if (method == "openURLFromFlutter") {
         Map args = methodCall.arguments;
@@ -53,8 +63,24 @@ class Router extends Object {
       } else if (method == "popRouteNamed") {
         Router.sharedInstance().popRouteNamed(methodCall.arguments);
       }
+      else if(method == "fetchSnapshot"){
+        NavigatorState navState = Navigator.of(globalKeyForRouter.currentContext);
+        String routeName = methodCall.arguments;
+        XMaterialPageRoute pageRoute = navState.history.firstWhere((Route route){
+          return (route is XMaterialPageRoute && (route as XMaterialPageRoute).settings.name == routeName)?true:false;
+        },orElse:()=>null);
+        String imgPath = "";
+        if(pageRoute.boundaryKey!=null){
+          image.Image img = await Utils.getImage(pageRoute.boundaryKey.currentContext.findRenderObject());
+          Random rd = new Random();
+          File file = await Utils.writeFile(img, "${rd.nextInt(10000)}.jpg");
+          imgPath = file.path;
+        }
+        return Future.sync(()=>imgPath);
+      }
     });
   }
+
   popToRoot() {
     NavigatorState navState = Navigator.of(globalKeyForRouter.currentContext);
     List<Route<dynamic>> navHistory = navState.history;
@@ -98,11 +124,13 @@ class Router extends Object {
     Widget page =
         Router.sharedInstance().pageFromOption(routeOption: routeOption);
     if (page != null) {
+      GlobalKey boundaryKey = new GlobalKey();
       XMaterialPageRoute pageRoute = new XMaterialPageRoute(
           settings: new RouteSettings(name: routeOption.userInfo),
           animated: animated,
+          boundaryKey: boundaryKey,
           builder: (BuildContext context) {
-            return page;
+            return new RepaintBoundary(key:boundaryKey,child: page);
           });
 
       Navigator.of(globalKeyForRouter.currentContext).push(pageRoute);
