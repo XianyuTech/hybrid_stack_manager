@@ -20,6 +20,7 @@ typedef void (^FlutterWrapperHandleBlock)();
 @property (nonatomic,strong) UIImageView *fakeSnapImgView;
 @property(nonatomic,strong) UIImage *lastSnapshot;
 @property(nonatomic,copy) NSString *lastFlutterRouteName;
+@property(nonatomic,weak) id<UIGestureRecognizerDelegate> originalGestureDelegate;
 @end
 
 @implementation FlutterViewWrapperController
@@ -60,7 +61,9 @@ typedef void (^FlutterWrapperHandleBlock)();
 
 -(void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-    [self.navigationController setNavigationBarHidden:YES animated:NO];
+    self.navigationController.navigationBarHidden = TRUE;
+    self.originalGestureDelegate = self.navigationController.interactivePopGestureRecognizer.delegate;
+    self.navigationController.interactivePopGestureRecognizer.delegate = self;
     if(self.viewWillAppearBlock){
         self.viewWillAppearBlock();
         self.viewWillAppearBlock = nil;
@@ -84,6 +87,7 @@ typedef void (^FlutterWrapperHandleBlock)();
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
     UINavigationController *rootNav = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
+    rootNav.interactivePopGestureRecognizer.delegate = self.originalGestureDelegate;
     NSArray *curStackAry = rootNav.viewControllers;
     NSInteger idx = [curStackAry indexOfObject:self];
     if(idx != NSNotFound && idx != curStackAry.count-1){
@@ -169,5 +173,14 @@ typedef void (^FlutterWrapperHandleBlock)();
         sxFlutterVC = [[XFlutterViewController alloc] initWithProject:nil nibName:nil bundle:nil];
     });
     return sxFlutterVC;
+}
+
+#pragma mark - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    return TRUE;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(nonnull UIGestureRecognizer *)otherGestureRecognizer{
+    return TRUE;
 }
 @end
