@@ -20,7 +20,7 @@ Android
 
 Add dependency in pubspec.yaml:
 
-	hybrid_stack_manager:0.0.6
+	hybrid_stack_manager:0.0.7
 
 After getting the package using "flutter packages get",you can check the examples within the package to see how to use it.
 
@@ -112,45 +112,40 @@ XURLRouter.sharedInstance().setAppContext(getApplicationContext());
 
 ```
 KyleWongdeMacBook-Pro:ios kylewong$ /Users/kylewong/Codes/Flutter/official/flutter/bin/flutter doctor -v
-[✓] Flutter (Channel unknown, v0.6.0, on Mac OS X 10.14 18A365a, locale en-CN)
-    • Flutter version 0.6.0 at /Users/kylewong/Codes/Flutter/official/flutter
-    • Framework revision 9299c02cf7 (5 days ago), 2018-08-16 00:35:12 +0200
-    • Engine revision e3687f70c7
-    • Dart version 2.1.0-dev.0.0.flutter-be6309690f
+[✓] Flutter (Channel unknown, v0.9.6, on Mac OS X 10.14.1 18B57c, locale en-CN)
+• Flutter version 0.9.6 at /Users/kylewong/Codes/Flutter/master/flutter
+• Framework revision 13684e4f8e (4 weeks ago), 2018-10-02 14:15:17 -0400
+• Engine revision f6af1f20ba
+• Dart version 2.1.0-dev.6.0.flutter-8a919426f0
 
-[✓] Android toolchain - develop for Android devices (Android SDK 27.0.3)
-    • Android SDK at /Users/kylewong/Library/Android/sdk
-    • Android NDK at /Users/kylewong/Library/Android/sdk/ndk-bundle
-    • Platform android-27, build-tools 27.0.3
-    • Java binary at: /Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/bin/java
-    • Java version OpenJDK Runtime Environment (build 1.8.0_152-release-1024-b01)
-    • All Android licenses accepted.
+[✓] Android toolchain - develop for Android devices (Android SDK 28.0.3)
+• Android SDK at /Users/kylewong/Library/Android/sdk
+• Android NDK at /Users/kylewong/Library/Android/sdk/ndk-bundle
+• Platform android-28, build-tools 28.0.3
+• Java binary at: /Applications/Android Studio.app/Contents/jre/jdk/Contents/Home/bin/java
+• Java version OpenJDK Runtime Environment (build 1.8.0_152-release-1136-b06)
+• All Android licenses accepted.
 
-[!] iOS toolchain - develop for iOS devices (Xcode 9.4.1)
-    • Xcode at /Applications/Xcode.app/Contents/Developer
-    • Xcode 9.4.1, Build version 9F2000
-    • ios-deploy 1.9.2
-    ! CocoaPods out of date (1.5.0 is recommended).
-        CocoaPods is used to retrieve the iOS platform side's plugin code that responds to your plugin usage on the Dart side.
-        Without resolving iOS dependencies with CocoaPods, plugins will not work on iOS.
-        For more info, see https://flutter.io/platform-plugins
-      To upgrade:
-        brew upgrade cocoapods
-        pod setup
+[!] iOS toolchain - develop for iOS devices (Xcode 10.0)
+• Xcode at /Applications/Xcode.app/Contents/Developer
+• Xcode 10.0, Build version 10A254a
+• ios-deploy 1.9.2
+! CocoaPods out of date (1.5.0 is recommended).
+CocoaPods is used to retrieve the iOS platform side's plugin code that responds to your plugin usage on the Dart side.
+Without resolving iOS dependencies with CocoaPods, plugins will not work on iOS.
+For more info, see https://flutter.io/platform-plugins
+To upgrade:
+brew upgrade cocoapods
+pod setup
 
-[✓] Android Studio (version 3.1)
-    • Android Studio at /Applications/Android Studio.app/Contents
-    • Flutter plugin version 26.0.1
-    • Dart plugin version 173.4700
-    • Java version OpenJDK Runtime Environment (build 1.8.0_152-release-1024-b01)
+[✓] Android Studio (version 3.2)
+• Android Studio at /Applications/Android Studio.app/Contents
+• Flutter plugin version 29.1.1
+• Dart plugin version 181.5656
+• Java version OpenJDK Runtime Environment (build 1.8.0_152-release-1136-b06)
 
-[!] VS Code (version 1.25.1)
-    • VS Code at /Applications/Visual Studio Code.app/Contents
-    • Flutter extension not installed; install from
-      https://marketplace.visualstudio.com/items?itemName=Dart-Code.flutter
-
-[✓] Connected devices (1 available)
-    • Nexus 5X • 00d25786e6b71602 • android-arm64 • Android 8.1.0 (API 27)
+[✓] Connected device (2 available)
+• SM G950U          • 988837355242375644                       • android-arm64 • Android 7.0 (API 24)
 ```
 Though  flutter beta v0.6.0 is used in my environment. In fact, this hybrid stack management  logic works even in v0.3.1 and above.
 

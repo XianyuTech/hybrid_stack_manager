@@ -20,3 +20,8 @@
 
 ## [0.0.6] - 2018-09-25
 * Repository relocated.
+
+## [0.0.7] - 2018-10-31
+* Enable support to launch from flutter as the first page which mades it more flexible.
+* Fix a white screen problem resulted from gesture confliction when swiping to pop in iOS.
+* Add support to take screenshot from flutter side. It is asynchronous, henceforth, the native (iOS&Android) still use the old logic which is using native api and synchronous.
