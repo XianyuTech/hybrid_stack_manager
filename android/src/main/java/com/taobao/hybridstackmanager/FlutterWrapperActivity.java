@@ -36,16 +36,6 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
     //Flutter Activity Related Work
     private ImageView fakeSnapImgView;
     private Bitmap lastbitmap;
-    private String pageName = "";
-    private HashMap spm = null;
-
-    public void setPageName(String pageName){
-        this.pageName = pageName;
-    }
-
-    public void setSpm(HashMap spm){
-        this.spm = spm;
-    }
 
     /**
      * Returns the Flutter view used by this activity; will be null before
@@ -142,17 +132,23 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
         checkIfAddFlutterView();
         fakeSnapImgView = (ImageView) findViewById(R.id.flutter_snap_imageview);
         fakeSnapImgView.setVisibility(View.GONE);
-        //Process Intent Extra
-        Intent intent = getIntent();
+        checkIfOpenFlutter(getIntent());
+        flutterWrapperInstCnt++;
+    }
+
+    protected void checkIfOpenFlutter(Intent intent){
         Bundle bundle = intent.getExtras();
         Uri uri = intent.getData();
+        HashMap arguments = new HashMap();
         if(uri!=null){
+            arguments = HybridStackManager.assembleChanArgs(uri.toString(),null,null);
             HybridStackManager.sharedInstance().openUrlFromFlutter(uri.toString(),null,null);
         }
-        else if(bundle!=null){
+        else if(bundle!=null && intent.getStringExtra("url")!=null){
+            arguments = HybridStackManager.assembleChanArgs(intent.getStringExtra("url"),(HashMap)intent.getSerializableExtra("query"),(HashMap)intent.getSerializableExtra("params"));
             HybridStackManager.sharedInstance().openUrlFromFlutter(intent.getStringExtra("url"),(HashMap)intent.getSerializableExtra("query"),(HashMap)intent.getSerializableExtra("params"));
         }
-        flutterWrapperInstCnt++;
+        HybridStackManager.sharedInstance().mainEntryParams = arguments;
     }
 
 
@@ -197,7 +193,7 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
 
     @Override
     public void onBackPressed() {
-        popCurActivity();
+        tryPopCurActivity();
     }
 
     @Override
@@ -285,19 +281,6 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
 
     //ActivityDelegate Related
     void checkIfInitActivityDelegate(){
-        if(nativeView==null){
-            Intent intent = getIntent();
-            Bundle bundle = intent.getExtras();
-            Uri uri = intent.getData();
-            HashMap arguments = new HashMap();
-            if(uri!=null){
-                arguments = HybridStackManager.assembleChanArgs(uri.toString(),null,null);
-            }
-            else if(bundle!=null){
-                arguments = HybridStackManager.assembleChanArgs(intent.getStringExtra("url"),(HashMap)intent.getSerializableExtra("query"),(HashMap)intent.getSerializableExtra("params"));
-           }
-            HybridStackManager.sharedInstance().mainEntryParams = arguments;
-        }
         if(delegate == null) {
             delegate = new XFlutterActivityDelegate(this, this);
         }
@@ -345,9 +328,11 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
     }
 
     @Override
-    public void popCurActivity() {
-        finish();
-        saveFinishSnapshot(true);
+    public void tryPopCurActivity() {
+        if(flutterWrapperInstCnt>1){
+            finish();
+            saveFinishSnapshot(true);
+        }
     }
 
     //Flutter View Related Logic

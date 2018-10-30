@@ -28,7 +28,7 @@
     dispatch_once(&onceToken, ^{
         sXFlutterModule = [[[self class] alloc] initInstance];
         [sXFlutterModule warmupFlutter];
-    });
+});
     return sXFlutterModule;
 }
 
@@ -66,16 +66,23 @@
     return dict;
 }
 
-- (void)openURL:(NSString *)aUrl query:(NSDictionary *)query params:(NSDictionary *)params{
+- (void)openURL:(NSString *)url query:(NSDictionary *)query params:(NSDictionary *)params{
+    FlutterViewWrapperController *flutterWrapperVC = [self  queryFlutterVCWithURL:url query:query params:params];
+    //Push
+    UINavigationController *currentNavigation = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
+    [currentNavigation pushViewController:flutterWrapperVC animated:YES];
+}
+
+- (FlutterViewWrapperController *)queryFlutterVCWithURL:(NSString *)url query:(NSDictionary *)query params:(NSDictionary *)params{
     static BOOL sIsFirstPush = TRUE;
     //Process aUrl and Query Stuff.
-    NSURL *url = [NSURL URLWithString:aUrl];
+    NSURL *aUrl = [NSURL URLWithString:url];
     
     NSMutableDictionary *mQuery = [NSMutableDictionary dictionaryWithDictionary:query];
-    [mQuery addEntriesFromDictionary:[XFlutterModule parseParamsKV:url.query]];
+    [mQuery addEntriesFromDictionary:[XFlutterModule parseParamsKV:aUrl.query]];
     NSMutableDictionary *mParams = [NSMutableDictionary dictionaryWithDictionary:params];
-    [mParams addEntriesFromDictionary:[XFlutterModule parseParamsKV:url.parameterString]];
-    NSString *pageUrl = [NSString stringWithFormat:@"%@://%@",url.scheme,url.host];
+    [mParams addEntriesFromDictionary:[XFlutterModule parseParamsKV:aUrl.parameterString]];
+    NSString *pageUrl = [NSString stringWithFormat:@"%@://%@",aUrl.scheme,aUrl.host];
     
     FlutterMethodChannel *methodChann = [HybridStackManager sharedInstance].methodChannel;
     NSMutableDictionary *arguments = [NSMutableDictionary dictionary];
@@ -99,9 +106,7 @@
     
     [arguments setValue:@(0) forKey:@"animated"];
     
-    //Push
-    UINavigationController *currentNavigation = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
-    FlutterViewWrapperController *viewController = [[FlutterViewWrapperController alloc] initWithURL:[NSURL URLWithString:aUrl] query:query nativeParams:params];
+    FlutterViewWrapperController *viewController = [[FlutterViewWrapperController alloc] initWithURL:[NSURL URLWithString:url] query:query nativeParams:params];
     viewController.viewWillAppearBlock = ^(){
         //Process first & later message sending according distinguishly.
         if(sIsFirstPush){
@@ -113,8 +118,7 @@
             }];
         }
     };
-    [currentNavigation pushViewController:viewController animated:YES]; 
+    return viewController;
 }
-
 #pragma mark - XFlutterModuleProtocol
 @end

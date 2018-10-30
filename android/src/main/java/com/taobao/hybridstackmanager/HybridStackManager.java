@@ -102,7 +102,7 @@ public class HybridStackManager implements MethodCallHandler {
             result.success("OK");
         } else if (call.method.equals("popCurPage")) {
             if (curFlutterActivity != null && curFlutterActivity.isActive()) {
-                curFlutterActivity.popCurActivity();
+                curFlutterActivity.tryPopCurActivity();
             }
             result.success("OK");
         }else {

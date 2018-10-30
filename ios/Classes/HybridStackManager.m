@@ -56,7 +56,7 @@
             animated = [(NSNumber *)call.arguments boolValue];
         }
         UINavigationController *nav = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
-        if([nav.topViewController isKindOfClass:[FlutterViewWrapperController class]]){
+        if(nav.viewControllers.count>1 && [nav.topViewController isKindOfClass:[FlutterViewWrapperController class]]){
             [nav popViewControllerAnimated:animated];
         }
     }

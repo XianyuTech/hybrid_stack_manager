@@ -17,5 +17,6 @@
 @property (nonatomic,assign) BOOL isInFlutterRootPage;
 @property (nonatomic,strong) XFlutterViewController *flutterVC;
 - (void)openURL:(NSString *)aUrl query:(NSDictionary *)query params:(NSDictionary *)params;
+- (FlutterViewWrapperController *)queryFlutterVCWithURL:(NSString *)url query:(NSDictionary *)query params:(NSDictionary *)params;
 - (void)warmupFlutter;
 @end

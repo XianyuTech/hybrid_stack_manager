@@ -15,5 +15,5 @@ public interface FlutterActivityChecker {
 
     public void setCurFlutterRouteName(String curFlutterRouteName);
 
-    public void popCurActivity();
+    public void tryPopCurActivity();
 }

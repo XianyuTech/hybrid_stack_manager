@@ -8,13 +8,14 @@ class FDemoWidget extends StatelessWidget {
   }
   Widget build(BuildContext context) {
     Map m = Utils.parseUniquePageName(routeOption.userInfo);
+    bool canPop = true;
     return new Scaffold(
         appBar: new AppBar(
-          leading: new GestureDetector(
+          leading: Visibility(visible: canPop,child: new GestureDetector(
               child: new Icon(Icons.arrow_back),
               onTap: () {
                 HybridStackManagerPlugin.hybridStackManagerPlugin.popCurPage();
-              }),
+              })),
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: new Text("Flutter Page(${m["id"]})"),

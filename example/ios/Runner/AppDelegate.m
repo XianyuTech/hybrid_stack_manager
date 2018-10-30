@@ -1,7 +1,7 @@
 #include "AppDelegate.h"
 #include "GeneratedPluginRegistrant.h"
-#import "XRootController.h"
 #import <hybrid_stack_manager/XURLRouter.h>
+#import <hybrid_stack_manager/XFlutterModule.h>
 #import "XDemoController.h"
 
 @interface AppDelegate(UIGestureRecognizerDelegate)
@@ -11,7 +11,7 @@
 - (BOOL)application:(UIApplication *)application
     didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
     // Override point for customization after application launch.
-    UINavigationController *rootNav = [[UINavigationController alloc] initWithRootViewController:[XRootController new]];
+    UINavigationController *rootNav = [[UINavigationController alloc] initWithRootViewController:[[XFlutterModule sharedInstance] queryFlutterVCWithURL:@"hrd://fdemo" query:@{@"flutter":@(true)} params:nil]];
     rootNav.interactivePopGestureRecognizer.delegate = self;
     UIWindow *window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     window.rootViewController = rootNav;
