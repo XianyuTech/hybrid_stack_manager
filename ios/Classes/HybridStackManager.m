@@ -1,6 +1,6 @@
 #import <sys/utsname.h>
 #import "HybridStackManager.h"
-#import "FlutterViewWrapperController.h"
+#import "XFlutterViewController.h"
 #import "XURLRouter.h"
 
 @interface HybridStackManager()
@@ -39,14 +39,13 @@
             params=mutParams;
         }
         result(params);
-        //      self.mainEntryParams = nil;
     }
     else if([@"updateCurFlutterRoute" isEqualToString:call.method]){
         NSString *curRouteName = call.arguments;
         UINavigationController *rootNav = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
         UIViewController *topVC = rootNav.topViewController;
-        if([topVC isKindOfClass:[FlutterViewWrapperController class]]){
-            FlutterViewWrapperController *flutterVC = topVC;
+        if([topVC isKindOfClass:[XFlutterViewController class]]){
+            XFlutterViewController *flutterVC = topVC;
             [flutterVC setCurFlutterRouteName:curRouteName];
         }
     }
@@ -56,7 +55,7 @@
             animated = [(NSNumber *)call.arguments boolValue];
         }
         UINavigationController *nav = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
-        if(nav.viewControllers.count>1 && [nav.topViewController isKindOfClass:[FlutterViewWrapperController class]]){
+        if(nav.viewControllers.count>1 && [nav.topViewController isKindOfClass:[XFlutterViewController class]]){
             [nav popViewControllerAnimated:animated];
         }
     }

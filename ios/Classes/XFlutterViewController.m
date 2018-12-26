@@ -6,17 +6,23 @@
 //
 
 #import "XFlutterViewController.h"
+#import "HybridStackManager.h"
 
-@interface XFlutterViewController ()
-@property (nonatomic,assign) BOOL enableViewWillAppear;
+@interface XFlutterViewController ()<UIGestureRecognizerDelegate>
+@property (nonatomic,strong) UIImageView *fakeSnapImgView;
+@property(nonatomic,weak) id<UIGestureRecognizerDelegate> originalGestureDelegate;
+@property(nonatomic,assign) BOOL isDisappeared;
 @end
 
 @implementation XFlutterViewController
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    self.enableViewWillAppear = TRUE;
     // Do any additional setup after loading the view.
+}
+    
+- (void)dealloc{
+    [self tryPopRoute];
 }
 
 - (void)didReceiveMemoryWarning {
@@ -25,41 +31,64 @@
 }
 
 - (void)viewWillAppear:(BOOL)animated{
-    if(self.enableViewWillAppear == FALSE)
-        return;
+    self.navigationController.navigationBarHidden = TRUE;
+    self.originalGestureDelegate = self.navigationController.interactivePopGestureRecognizer.delegate;
+    self.navigationController.interactivePopGestureRecognizer.delegate = self;
     [super viewWillAppear:animated];
-    self.enableViewWillAppear = FALSE;
+    if(self.viewWillAppearBlock){
+        self.viewWillAppearBlock();
+        self.viewWillAppearBlock = nil;
+    }
 }
 
 - (void)viewDidAppear:(BOOL)animated{
     [super viewDidAppear:animated];
+    if(self.curFlutterRouteName.length && self.isDisappeared){
+        [[HybridStackManager sharedInstance].methodChannel invokeMethod:@"popToRouteNamed" arguments:self.curFlutterRouteName];
+    }
+    [self.view setUserInteractionEnabled:TRUE];
 }
 
 - (void)viewWillDisappear:(BOOL)animated{
     [super viewWillDisappear:animated];
+    UINavigationController *rootNav = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
+    rootNav.interactivePopGestureRecognizer.delegate = self.originalGestureDelegate;
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
     [super viewDidDisappear:animated];
-    self.enableViewWillAppear = TRUE;
+    self.isDisappeared = TRUE;
 }
-/*
- #pragma mark - Navigation
- 
- // In a storyboard-based application, you will often want to do a little preparation before navigation
- - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
- // Get the new view controller using [segue destinationViewController].
- // Pass the selected object to the new view controller.
- }
- */
-//- (UIEdgeInsets)paddingEdgeInsets{
-//    UIEdgeInsets edgeInsets = UIEdgeInsetsZero;
-//    if (@available(iOS 11, *)) {
-//        edgeInsets = UIEdgeInsetsMake(0, self.view.safeAreaInsets.left, self.view.safeAreaInsets.bottom, self.view.safeAreaInsets.right);
-//    } else {
-//        edgeInsets = UIEdgeInsetsZero;
-//    }
-//    return edgeInsets;
-//}
+    
+- (void)tryPopRoute{
+    UINavigationController *rootNav = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
+    NSArray *ary = [rootNav.viewControllers filteredArrayUsingPredicate:[NSPredicate predicateWithBlock:^BOOL(id  _Nullable evaluatedObject, NSDictionary<NSString *,id> * _Nullable bindings) {
+        if([evaluatedObject isKindOfClass:[XFlutterViewController class]])
+            return TRUE;
+        return FALSE;
+    }]];
+    if(!ary.count){
+        [[HybridStackManager sharedInstance].methodChannel invokeMethod:@"popToRoot" arguments:nil];
+    }
+    
+    NSArray *curStackAry = rootNav.viewControllers;
+    NSInteger idx = [curStackAry indexOfObject:self];
+    if(idx == NSNotFound){
+        [[HybridStackManager sharedInstance].methodChannel invokeMethod:@"popRouteNamed" arguments:self.curFlutterRouteName];
+    }
+}
+
+- (BOOL)shouldAutomaticallyForwardAppearanceMethods{
+    return TRUE;
+}
+    
+#pragma mark - UIGestureRecognizerDelegate
+- (BOOL)gestureRecognizerShouldBegin:(UIGestureRecognizer *)gestureRecognizer{
+    return TRUE;
+}
+
+- (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldBeRequiredToFailByGestureRecognizer:(nonnull UIGestureRecognizer *)otherGestureRecognizer{
+    return TRUE;
+}
 @end
 
