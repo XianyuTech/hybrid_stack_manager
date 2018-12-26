@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Configuration;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
@@ -17,12 +16,9 @@ import android.widget.ImageView;
 
 import com.taobao.hybridstackmanager.XFlutterActivityDelegate.ViewFactory;
 
-import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
-
-import io.flutter.plugin.common.MethodChannel;
 import io.flutter.plugin.common.PluginRegistry;
 import io.flutter.view.FlutterNativeView;
 import io.flutter.view.FlutterView;
@@ -133,9 +129,9 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
             }
         }
         setContentView(R.layout.flutter_layout);
+        checkIfAddFlutterView();
         fakeSnapImgView = (ImageView) findViewById(R.id.flutter_snap_imageview);
         fakeSnapImgView.setVisibility(View.GONE);
-        checkIfAddFlutterView();
         checkIfOpenFlutter(getIntent());
         flutterWrapperInstCnt++;
     }
@@ -159,6 +155,7 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
     @Override
     protected void onResume() {
         super.onResume();
+        fakeSnapImgView.setVisibility(View.GONE);
         checkIfAddFlutterView();
         if(isFlutterViewAttachedOnMe())
             eventDelegate.onResume();
@@ -359,7 +356,6 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
                     if (flutterView.getParent() == null && activity.isActive==true ) {
                         rootView.addView(flutterView, params);
                         flutterView.resetActivity(activity);
-                        fakeSnapImgView.setVisibility(View.GONE);
                     }
                 }
             }, 20);
@@ -367,30 +363,14 @@ public class FlutterWrapperActivity extends Activity implements PluginRegistry,V
         else{
             rootView.addView(flutterView, params);
             flutterView.resetActivity(activity);
-            fakeSnapImgView.setVisibility(View.GONE);
         }
     }
 
-    void saveFinishSnapshot(final boolean showSnapshot){
-        HybridStackManager.sharedInstance().methodChannel.invokeMethod("fetchSnapshot", curFlutterRouteName, new MethodChannel.Result() {
-            @Override
-            public void success(Object o) {
-                lastbitmap = BitmapFactory.decodeFile((String)o);
-                fakeSnapImgView.setImageBitmap(lastbitmap);
-                if(showSnapshot)
-                    fakeSnapImgView.setVisibility(View.VISIBLE);
-                File myFile = new File((String)o);
-                if(myFile.exists())
-                    myFile.delete();
-            }
-
-            @Override
-            public void error(String s, String s1, Object o) {
-            }
-
-            @Override
-            public void notImplemented() {
-            }
-        });
+    void saveFinishSnapshot(boolean showSnapshot){
+        XFlutterView fv = getFlutterView();
+        lastbitmap = fv.getBitmap();
+        fakeSnapImgView.setImageBitmap(lastbitmap);
+        if(showSnapshot)
+            fakeSnapImgView.setVisibility(View.VISIBLE);
     }
 }

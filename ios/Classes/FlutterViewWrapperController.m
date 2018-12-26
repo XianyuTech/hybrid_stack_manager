@@ -18,6 +18,7 @@ typedef void (^FlutterWrapperHandleBlock)();
 
 @interface FlutterViewWrapperController ()<UIGestureRecognizerDelegate>
 @property (nonatomic,strong) UIImageView *fakeSnapImgView;
+@property(nonatomic,strong) UIImage *lastSnapshot;
 @property(nonatomic,copy) NSString *lastFlutterRouteName;
 @property(nonatomic,weak) id<UIGestureRecognizerDelegate> originalGestureDelegate;
 @end
@@ -67,7 +68,7 @@ typedef void (^FlutterWrapperHandleBlock)();
         self.viewWillAppearBlock();
         self.viewWillAppearBlock = nil;
     }
-    if(!self.fakeSnapImgView.image){
+    if(!self.lastSnapshot){
         dispatch_async(dispatch_get_main_queue(), ^{
             [self addChildFlutterVC];
         });
@@ -77,7 +78,7 @@ typedef void (^FlutterWrapperHandleBlock)();
 -(void)viewDidAppear:(BOOL)animated {
     [super viewDidAppear:animated];
     [self addChildFlutterVC];
-    if(self.curFlutterRouteName.length && self.fakeSnapImgView.image){
+    if(self.curFlutterRouteName.length && self.lastSnapshot){
         [[HybridStackManager sharedInstance].methodChannel invokeMethod:@"popToRouteNamed" arguments:self.curFlutterRouteName];
     }
     [[FlutterViewWrapperController flutterVC].view setUserInteractionEnabled:TRUE];
@@ -113,19 +114,18 @@ typedef void (^FlutterWrapperHandleBlock)();
         [[HybridStackManager sharedInstance].methodChannel invokeMethod:@"popRouteNamed" arguments:self.lastFlutterRouteName];
     }
 }
-
 #pragma mark - Child/Parent VC
 - (void)showFlutterViewOverSnapshot{
     XFlutterViewController *flutterVC = [FlutterViewWrapperController flutterVC];
     BOOL priorIsMyChild = (flutterVC.parentViewController == self);
-    if(self.fakeSnapImgView.image){
+    if(self.lastSnapshot){
         [self.view bringSubviewToFront:self.fakeSnapImgView];
     }
     flutterVC.view.frame = self.view.bounds;
     flutterVC.view.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
     dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
         [self.view bringSubviewToFront:flutterVC.view];
-        self.fakeSnapImgView.image = nil;
+        self.lastSnapshot = nil;
     });
 }
 
@@ -154,12 +154,13 @@ typedef void (^FlutterWrapperHandleBlock)();
     XFlutterViewController *flutterVC = [FlutterViewWrapperController flutterVC];
     if(flutterVC.parentViewController != self)
         return;
-    if(self.fakeSnapImgView.image == nil){
-        [[HybridStackManager sharedInstance].methodChannel invokeMethod:@"fetchSnapshot" arguments:self.curFlutterRouteName result:^(id  _Nullable result) {
-            self.fakeSnapImgView.image = [UIImage imageWithData:[NSData dataWithContentsOfFile:result]];
-            [[NSFileManager defaultManager] removeItemAtPath:result error:nil];
-            [self.view bringSubviewToFront:self.fakeSnapImgView];
-        }];
+    if(self.lastSnapshot == nil){
+        UIGraphicsBeginImageContextWithOptions([UIScreen mainScreen].bounds.size, YES, 0);
+        [flutterVC.view drawViewHierarchyInRect:flutterVC.view.bounds afterScreenUpdates:NO];
+        self.lastSnapshot = UIGraphicsGetImageFromCurrentImageContext();
+        UIGraphicsEndImageContext();
+        [self.fakeSnapImgView setImage:self.lastSnapshot];
+        [self.view bringSubviewToFront:self.fakeSnapImgView];
     }
 }
 
