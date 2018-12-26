@@ -6,6 +6,11 @@
 //
 
 #import <Flutter/Flutter.h>
+#import "UIViewController+URLRouter.h"
+
+typedef void (^FlutterViewWillAppearBlock) (void);
 
 @interface XFlutterViewController : FlutterViewController
+@property(nonatomic,copy) NSString *curFlutterRouteName;
+@property(nonatomic,copy) FlutterViewWillAppearBlock viewWillAppearBlock;
 @end

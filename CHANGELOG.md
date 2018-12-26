@@ -25,3 +25,8 @@
 * Enable support to launch from flutter as the first page which mades it more flexible.
 * Fix a white screen problem resulted from gesture confliction when swiping to pop in iOS.
 * Add support to take screenshot from flutter side. It is asynchronous, henceforth, the native (iOS&Android) still use the old logic which is using native api and synchronous.
+
+## [0.1.0] - 2018-12-25
+* This new version only change the iOS side logic.
+* As Flutter1.0 has split FlutterEngine(engine) and FlutterViewController(display), remove the FlutterViewWrapperViewController and move some logic like route control from FlutterViewWrapperViewController to XFlutterViewController.
+* Taking snapshot is not needed anymore. 

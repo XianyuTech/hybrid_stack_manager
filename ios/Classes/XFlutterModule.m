@@ -39,16 +39,12 @@
     return self;
 }
 
-- (XFlutterViewController *)flutterVC{
-    return [FlutterViewWrapperController flutterVC];
-}
-
 - (void)warmupFlutter{
     if(_isFlutterWarmedup)
         return;
-    XFlutterViewController *flutterVC = [FlutterViewWrapperController flutterVC];
-    [flutterVC view];
-    [NSClassFromString(@"GeneratedPluginRegistrant") performSelector:NSSelectorFromString(@"registerWithRegistry:") withObject:flutterVC];
+    _flutterEngine = [[FlutterEngine alloc] initWithName:@"default_engine" project:nil];
+    [_flutterEngine runWithEntrypoint:nil];
+    [NSClassFromString(@"GeneratedPluginRegistrant") performSelector:NSSelectorFromString(@"registerWithRegistry:") withObject:_flutterEngine];
     _isFlutterWarmedup = true;
 }
 
@@ -67,13 +63,13 @@
 }
 
 - (void)openURL:(NSString *)url query:(NSDictionary *)query params:(NSDictionary *)params{
-    FlutterViewWrapperController *flutterWrapperVC = [self  queryFlutterVCWithURL:url query:query params:params];
+    XFlutterViewController *flutterWrapperVC = [self  queryFlutterVCWithURL:url query:query params:params];
     //Push
     UINavigationController *currentNavigation = (UINavigationController*)[UIApplication sharedApplication].delegate.window.rootViewController;
     [currentNavigation pushViewController:flutterWrapperVC animated:YES];
 }
 
-- (FlutterViewWrapperController *)queryFlutterVCWithURL:(NSString *)url query:(NSDictionary *)query params:(NSDictionary *)params{
+- (XFlutterViewController *)queryFlutterVCWithURL:(NSString *)url query:(NSDictionary *)query params:(NSDictionary *)params{
     static BOOL sIsFirstPush = TRUE;
     //Process aUrl and Query Stuff.
     NSURL *aUrl = [NSURL URLWithString:url];
@@ -105,15 +101,15 @@
     [arguments setValue:mutParams forKey:@"params"];
     
     [arguments setValue:@(0) forKey:@"animated"];
-    
-    FlutterViewWrapperController *viewController = [[FlutterViewWrapperController alloc] initWithURL:[NSURL URLWithString:url] query:query nativeParams:params];
+    if(sIsFirstPush){
+        [HybridStackManager sharedInstance].mainEntryParams = arguments;
+        sIsFirstPush = FALSE;
+    }
+    XFlutterViewController *viewController = [[XFlutterViewController alloc] initWithEngine:_flutterEngine nibName:nil bundle:nil];
     viewController.viewWillAppearBlock = ^(){
         //Process first & later message sending according distinguishly.
-        if(sIsFirstPush){
-            [HybridStackManager sharedInstance].mainEntryParams = arguments;
-            sIsFirstPush = FALSE;
-        }
-        else{
+
+        if(!sIsFirstPush){
             [methodChann invokeMethod:@"openURLFromFlutter" arguments:arguments result:^(id  _Nullable result) {
             }];
         }

@@ -1,9 +1,9 @@
 {
   "name": "hybrid_stack_manager",
-  "version": "0.0.7",
+  "version": "0.1.0",
   "summary": "hybrid_stack_manager",
   "description": "混合栈管理",
-  "homepage": "https://github.com/FlutterRepo/hybrid_stack_manager.git",
+  "homepage": "https://github.com/alibaba-flutter/hybrid_stack_manager.git",
   "license": {
     "type": "MIT",
     "file": "LICENSE"
@@ -15,8 +15,8 @@
     "ios": "8.0"
   },
   "source": {
-    "git": "git@github.com:FlutterRepo/hybrid_stack_manager.git",
-    "tag": "0.0.7"
+    "git": "git@github.com:alibaba-flutter/hybrid_stack_manager.git",
+    "tag": "0.1.0"
   },
   "source_files": [
     "Classes",
