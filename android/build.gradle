@@ -23,7 +23,7 @@ apply plugin: 'com.android.library'
 
 android {
     compileSdkVersion = 24
-    buildToolsVersion = "26.0.2"
+    buildToolsVersion = '28.0.3'
     defaultConfig {
         minSdkVersion 14
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
