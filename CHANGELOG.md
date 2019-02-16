@@ -30,3 +30,6 @@
 * This new version only change the iOS side logic.
 * As Flutter1.0 has split FlutterEngine(engine) and FlutterViewController(display), remove the FlutterViewWrapperViewController and move some logic like route control from FlutterViewWrapperViewController to XFlutterViewController.
 * Taking snapshot is not needed anymore. 
+
+## [0.1.1] - 2019-02-16
+* Change podspec.json to podspec, it will fix a Flutter/Flutter.h not found problem.
