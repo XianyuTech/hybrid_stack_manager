@@ -1,0 +1,28 @@
+PODS:
+  - Flutter (1.0.0)
+  - hybrid_stack_manager (0.1.0):
+    - Flutter
+  - path_provider (0.0.1):
+    - Flutter
+
+DEPENDENCIES:
+  - Flutter (from `.symlinks/flutter/ios`)
+  - hybrid_stack_manager (from `.symlinks/plugins/hybrid_stack_manager/ios`)
+  - path_provider (from `.symlinks/plugins/path_provider/ios`)
+
+EXTERNAL SOURCES:
+  Flutter:
+    :path: ".symlinks/flutter/ios"
+  hybrid_stack_manager:
+    :path: ".symlinks/plugins/hybrid_stack_manager/ios"
+  path_provider:
+    :path: ".symlinks/plugins/path_provider/ios"
+
+SPEC CHECKSUMS:
+  Flutter: 58dd7d1b27887414a370fcccb9e645c08ffd7a6a
+  hybrid_stack_manager: 47ab117dbea0838b5d3a328dffcdfaf37a852807
+  path_provider: f96fff6166a8867510d2c25fdcc346327cc4b259
+
+PODFILE CHECKSUM: 1e5af4103afd21ca5ead147d7b81d06f494f51a2
+
+COCOAPODS: 1.6.0
